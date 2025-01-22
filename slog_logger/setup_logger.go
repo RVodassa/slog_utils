@@ -1,7 +1,6 @@
 package slog_logger
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 )
@@ -13,7 +12,6 @@ const (
 )
 
 func SetupLogger(env string, level slog.Level) *slog.Logger {
-	const op = "main.setupLogger"
 
 	var handler slog.Handler
 	switch env {
@@ -27,6 +25,5 @@ func SetupLogger(env string, level slog.Level) *slog.Logger {
 	}
 
 	slogLog := slog.New(handler)
-	slogLog.Info(op, slog.String("mode", fmt.Sprintf("сервис запущен в режиме '%s'", env)))
 	return slogLog
 }
