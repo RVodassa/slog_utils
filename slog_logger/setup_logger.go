@@ -12,24 +12,21 @@ const (
 	envProd  = "prod"
 )
 
-// Цветное логирование
-func setupLogger(env string) *slog.Logger {
+func SetupLogger(env string, level slog.Level) *slog.Logger {
 	const op = "main.setupLogger"
-	var slogLog *slog.Logger
 
+	var handler slog.Handler
 	switch env {
 	case envLocal:
-		handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})
-		colorHandler := NewColorHandler(handler)
-		slogLog = slog.New(colorHandler)
-		slogLog.Info(op, slog.String("mode", fmt.Sprintf("сервис запущен в режиме '%s'", envLocal)))
-	case envDev:
-		slogLog = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
-		slogLog.Info(op, slog.String("mode", fmt.Sprintf("сервис запущен в режиме '%s'", envDev)))
-	case envProd:
-		slogLog = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
-		slogLog.Info(op, slog.String("mode", fmt.Sprintf("сервис запущен в режиме '%s'", envProd)))
+		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level})
+		handler = NewColorHandler(handler)
+	case envDev, envProd:
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: level})
+	default:
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	}
+
+	slogLog := slog.New(handler)
+	slogLog.Info(op, slog.String("mode", fmt.Sprintf("сервис запущен в режиме '%s'", env)))
 	return slogLog
 }
